@@ -12,18 +12,12 @@ public class EmployeeRun {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 
-		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			
-			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		
 		Connection conn = null; 
 		Statement stmt = null;
 		ResultSet rset = null;
 		int result = 0;
+		
+		
 		
 	while(true) {    
 		System.out.println("1. 사원추가");
@@ -38,7 +32,7 @@ public class EmployeeRun {
 		sc.nextLine();
 		
 		switch (menu) {
-		case 1:
+		case 1:		
 			System.out.print("직원명 : ");
 			String name = sc.nextLine();
 			
@@ -73,8 +67,21 @@ public class EmployeeRun {
 			
 			String sql = "INSERT INTO COPY_EMP VALUES(SEQ_EMP_ID.NEXTVAL, '" + name + ", " + ssn + ", " + email + ", " + phone + ", "
 						  + dCode + ", " + jCode + ", " + sLvl + ", " + sal + ", " + bns;
-			System.out.println(sql);
-			break;
+			
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+				conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "kh", "kh");
+				stmt = conn.createStatement();
+				result = stmt.executeUpdate(sql);
+				
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			if (result > 0) {
+			}
+			
 		case 2 :
 			String sql2 = "SELECT * FROM COPY_EMP";
 			System.out.println(sql2);
