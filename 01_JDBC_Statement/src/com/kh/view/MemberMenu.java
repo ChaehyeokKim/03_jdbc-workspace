@@ -47,11 +47,11 @@ public class MemberMenu {
 					mc.selectByUserId(userId);
 				break;
 			case 4: String userName = inputKeyWord(null);
-					mc.searchNameKeyWord(userName);
+					mc.selectByUserName(userName);
 				break;
-			case 5: /**/
+			case 5: updateMember();
 				break;
-			case 6: /**/
+			case 6: deleteMember();/*DELETE FROM MEMBER WHERE USERID = 'xxx'*/
 				break;
 			case 0:
 				System.out.println("이용해 주셔서 감사합니다.");
@@ -160,6 +160,11 @@ public class MemberMenu {
 		System.out.println(m);
 	}
 
+	/**
+	 * 사용자에게 검색할 회원명(키워드) 입력 받은 후 그 때 입력된 값을 반환시켜주는 메소드
+	 * @param kw
+	 * @return 사용자가 입력한 회원명
+	 */
 	public String inputKeyWord(Member kw) {
 		System.out.print("\n 회원 이름 입력 (키워드 포함) : ");
 		return sc.nextLine();
@@ -170,6 +175,38 @@ public class MemberMenu {
 		for(int i = 0; i < ls.size(); i++) {		
 			System.out.println(ls.get(i));
 		}
+	}
+	
+	/**
+	 *  사용자에게 변경할 정보들(비번, 이메일, 전화번호, 주소)과 해당 회원의 아이디를 입력받는 화면
+	 */
+	public void updateMember() {
+		System.out.println("\n---- 회원 정보 변경 ----");
+		
+		// 회원 아이디, 비번, 이메일, 전번, 주소 (변경할)
+		String userId = inputMemberId(); // 복잡한 코드를 다음과 같이 줄일 수 있다.
+		
+		System.out.print("변경할 암호 : ");
+		String userPwd = sc.nextLine();
+		
+		System.out.print("변경할 이메일 : ");
+		String email = sc.nextLine();
+		
+		System.out.print("변경할 전화번호 : ");
+		String phone = sc.nextLine();
+		
+		System.out.print("변경할 주소 : ");
+		String address = sc.nextLine();
+		
+		mc.updateMember(userId, userPwd, email, phone, address);
+	}
+	
+	public void deleteMember() {
+		System.out.println("\n---- 회원 정보 삭제 ----");
+		String userId = inputMemberId();
+		
+		mc.deleteMember(userId);
+		
 	}
 }
 

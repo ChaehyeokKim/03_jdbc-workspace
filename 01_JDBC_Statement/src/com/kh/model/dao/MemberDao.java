@@ -281,6 +281,11 @@ public class MemberDao {
 
 				ls.add(kw);
 			}
+			
+			/*
+			 * ls.add(new Member(rset.getInt("userno")),
+			 * 					 ... 쭉 써서 추가도 가능
+			 */
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -299,6 +304,96 @@ public class MemberDao {
 		return ls;
 	}
 
+	public int updateMember(Member m) {
+		// update문 -> 처리된 행수 (int) -> 트랜잭션 처리
+		
+		int result = 0;
+		Connection conn = null;
+		Statement stmt = null;
+		
+		// 실행할 sql문(완성형태)
+		/*
+		 * UPDATE MEMBER
+   				SET USERPWD = 'XXXX',
+       				EMAIL = 'XXXXX',
+       				PHONE = 'XXXXX',
+       				ADDRESS = 'XXXXXXX'
+ 			WHERE USERID = 'XXXX';
+		 */
+		
+		String sql = "UPDATE MEMBER "
+					+ "SET USERPWD = '" + m.getUserPwd() + "'" 
+					+ ", EMAIL = '" 	 + m.getEmail() + "'"
+					+ ", PHONE = '" 	 + m.getPhone() + "'"
+					+ ", ADDRESS = '" 	 + m.getAddress() + "'"
+					+ "WHERE USERID = '" + m.getUserId() + "'";
+		
+			try {
+				Class.forName("oracle.jdbc.driver.OracleDriver");
+				conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "JDBC", "JDBC");
+				stmt = conn.createStatement();
+				
+				result = stmt.executeUpdate(sql);
+				
+				if(result > 0) {
+					conn.commit();
+				} else {
+					conn.rollback();
+				}
+
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					stmt.close();
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			return result;
+	}
+	
+	public int deleteMember(String userId) {
+		
+		int result = 0;
+		Connection conn = null;
+		Statement stmt = null;
+		
+		String sql = "DELETE FROM MEMBER WHERE USERID = '"
+						+ userId + "'";
+		
+		try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "JDBC", "JDBC");
+			stmt = conn.createStatement();
+			result = stmt.executeUpdate(sql);
+			
+			if(result > 0) {
+				conn.commit();
+			} else {
+				conn.rollback();
+			}
+			
+			
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		return result;
+	}
 }
 
 

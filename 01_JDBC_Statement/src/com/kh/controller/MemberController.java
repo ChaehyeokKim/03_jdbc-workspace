@@ -62,7 +62,11 @@ public class MemberController {
 		}
 	}
 	
-	public void searchNameKeyWord(String userName) {
+	/**
+	 * 사용자의 이름으로 회원 검색 요청 처리해주는 메소드
+	 * @param userName 사용자가 입력한 검색 하고자 하는 회원 이름 값
+	 */
+	public void selectByUserName(String userName) {
 		ArrayList<Member> ls = new MemberDao().selectByUserName(userName);
 			if(ls.isEmpty()) {
 				new MemberMenu().displayNoData(userName + "에 해당하는 검색 결과가 없습니다.");
@@ -70,5 +74,44 @@ public class MemberController {
 				new MemberMenu().displayMemberName(ls);
 			}
 		}
+	
+	/**
+	 * 정보 변경 요청 처리 해주는 메소드
+	 * @param userId 	: 변경할 아이디
+	 * @param userPwd   : 변경할 비밀번호
+	 * @param email     : 변경할 이메일
+	 * @param phone     : 변경할 전화번호
+	 * @param address   : 변경할 주소
+	 */
+	public void updateMember(String userId, String userPwd, String email, String phone, String address) {
+		
+		// 데이터 가공 처리
+		Member m = new Member();
+		m.setUserId(userId);
+		m.setUserPwd(userPwd);
+		m.setEmail(email);
+		m.setPhone(phone);
+		m.setAddress(address);
+		
+		int result = new MemberDao().updateMember(m);
+		
+		if(result > 0) {
+			new MemberMenu().displaySuccess("성공적으로 수정 되었습니다.");
+		} else {
+			new MemberMenu().displayFail("수정에 실패했습니다.");
+		}
+		
+	}
+	
+	public void deleteMember(String userId) {
+		int result = new MemberDao().deleteMember(userId);
+		
+		if(result > 0) {
+			new MemberMenu().displaySuccess("성공적으로 삭제 되었습니다.");
+		} else {
+			new MemberMenu().displayFail("삭제에 실패했습니다.");
+		}
+	}
+	
 	}
 	
