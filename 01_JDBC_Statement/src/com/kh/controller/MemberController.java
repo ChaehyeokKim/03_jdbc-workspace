@@ -12,6 +12,7 @@ import com.kh.view.MemberMenu;
 
 public class MemberController {
 
+	//  private MemberMenu mm = new MemberMenu();
 	/**
 	 * 사용자의 회원 추가 요청을 처리해주는 메소드
 	 * @param userId ~ hobby : 사용자가 입력했던 정보들이 담겨있는 매개변수
@@ -103,15 +104,18 @@ public class MemberController {
 		
 	}
 	
+	/**
+	 * 회원 탈퇴 요청 처리 해주는 메소드
+	 * @param userId 사용자가 입력한 탈퇴시키고자 하는 회원 아이디 값
+	 */
 	public void deleteMember(String userId) {
 		int result = new MemberDao().deleteMember(userId);
 		
 		if(result > 0) {
-			new MemberMenu().displaySuccess("성공적으로 삭제 되었습니다.");
+			new MemberMenu().displaySuccess("성공적으로 탈퇴 되었습니다.");
 		} else {
-			new MemberMenu().displayFail("삭제에 실패했습니다.");
+			new MemberMenu().displayFail("탈퇴에 실패했습니다.");
 		}
 	}
-	
-	}
+}
 	

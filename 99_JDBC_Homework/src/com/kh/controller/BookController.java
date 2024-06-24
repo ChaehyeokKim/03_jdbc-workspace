@@ -31,6 +31,9 @@ public class BookController {
 		return mlist;
 	}
 	
-	
+	public int deletebyMember(String userId) {
+		
+		Member m = new Member();
+	}
 	
 }
