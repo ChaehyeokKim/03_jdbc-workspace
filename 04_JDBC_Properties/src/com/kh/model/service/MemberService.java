@@ -77,10 +77,10 @@ public class MemberService {
 	      return result;
 	   }
 	   
-	 public int deleteMember(String userId, Member m) {
+	 public int deleteMember(Connection conn, String userId) {
 		 
-		 Connection conn = getConnection();
-		 int result = new MemberDao().deleteMember(userId, m);
+		 conn = getConnection();
+		 int result = new MemberDao().deleteMember(conn, userId);
 		 
 		 if(result > 0) {
 			 commit(conn);
@@ -90,5 +90,16 @@ public class MemberService {
 		 
 		 close(conn);
 		 return result;
+	 }
+	 
+	 public String loginMember(String userId, String userPwd) {
+		 
+		 Connection conn = getConnection();
+		 
+		 String userName = new MemberDao().loginMember(conn, userId, userPwd);
+		
+		 close(conn);
+		 
+		 return userName;
 	 }
 }

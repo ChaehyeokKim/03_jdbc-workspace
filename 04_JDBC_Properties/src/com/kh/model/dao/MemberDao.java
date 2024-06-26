@@ -1,5 +1,7 @@
 package com.kh.model.dao;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.w3c.dom.ls.LSException;
 
@@ -17,12 +20,32 @@ import com.kh.model.vo.Member;
 //                           결과를 Controller로 다시 리턴 
 public class MemberDao {
 	
+	/*
+	 * 기존의 방식 : DAO 클래스에 사용자가 요청할 때 마다 실행해야되는 SQL문을 자바 코드 내에 명시적으로 작성 => 정적코딩방식(하드코딩)
+	 * 
+	 * 			> 문제점 : SQL문을 수정해야 될 경우 자바 소스코드를 수정해야 됨 -> 수정된 내용을 반영시키고자 한다면 프로그램을 재기동 해야 됨
+	 * 
+	 * 			> 해결 방법 : SQL문을 별도로 관리하는 외부 파일(.xml)로 만들어서 실시간으로 그 파일에 기록된 SQL문을 읽어들여서 실행
+	 */
+	
+	// 필드부
+	private Properties prop = new Properties();
+	
+	// 생성자부
+	public MemberDao() { // 기본 생성자
+		try {
+			prop.loadFromXML(new FileInputStream("resources/query.xml"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	} 
+	
 	public int insertMember(Connection conn, Member m) {
 		// insert문 => 처리된 행수 => 트랜잭션 처리
 		int result = 0;
 		
 		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO MEMBER VALUES(SEQ_USERNO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE)";
+		String sql = prop.getProperty("insertMember");
 		
 		// 3) PreparedStatement 객체 생성
 		try {
@@ -59,7 +82,7 @@ public class MemberDao {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 
-		String sql = "SELECT * FROM MEMBER ORDER BY USERNAME";
+		String sql = prop.getProperty("selectList");
 
 		try {
 			pstmt = conn.prepareStatement(sql); // 완성된 sql문
@@ -67,10 +90,17 @@ public class MemberDao {
 
 			while (rset.next()) {
 				// 한행 => Member 객체 => list 추가
-				list.add(new Member(rset.getInt("userno"), rset.getString("userid"), rset.getString("userpwd"),
-						rset.getString("usErNAme"), rset.getString("gender"), rset.getInt("age"),
-						rset.getString("email"), rset.getString("phone"), rset.getString("address"),
-						rset.getString("hobby"), rset.getDate("enrolldate")));
+				list.add(new Member(rset.getInt("userno")
+						, rset.getString("userid")
+						, rset.getString("userpwd")
+						, rset.getString("userName")
+						, rset.getString("gender")
+						, rset.getInt("age")
+						, rset.getString("email")
+						, rset.getString("phone")
+						, rset.getString("address")
+						, rset.getString("hobby")
+						, rset.getDate("enrolldate")));
 			}
 
 		} catch (SQLException e) {
@@ -90,7 +120,7 @@ public class MemberDao {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 
-		String sql = "SELECT * FROM MEMBER WHERE USERID = ?"; // 미완성된 SQL문
+		String sql = prop.getProperty("selectByUserId"); // 미완성된 SQL문
 
 		try {
 			pstmt = conn.prepareStatement(sql);
@@ -123,7 +153,7 @@ public class MemberDao {
 		PreparedStatement pstmt = null;
 		ResultSet rset = null;
 
-		String sql = "SELECT * FROM MEMBER WHERE USERNAME LIKE '%'|| ? || '%'";
+		String sql = prop.getProperty("selectByUserName");
 
 		try {
 			pstmt = conn.prepareStatement(sql); // 미완성
@@ -155,7 +185,7 @@ public class MemberDao {
 		int result = 0;
 		PreparedStatement pstmt = null;
 
-		String sql = "UPDATE MEMBER SET USERPWD = ?, EMAIL = ?, PHONE = ?, ADDRESS = ? WHERE USERID = ?";
+		String sql = prop.getProperty("updateMember");
 
 		try {
 			pstmt = conn.prepareStatement(sql); // 미완성 sql문
@@ -178,18 +208,17 @@ public class MemberDao {
 		return result;
 	}
 	
-	public int deleteMember(String userId, Member m) {
+	public int deleteMember(Connection conn, String userId) {
 		
 		int result = 0;
-		Connection conn = null;
 		PreparedStatement pstmt = null;
 		
-		String sql = "DELETE FROM MEMBER WHERE USERID = ?"; 
+		String sql = prop.getProperty("deleteMember"); 
 		
 		try {
 			pstmt = conn.prepareStatement(sql);
 			
-			pstmt.setString(1, m.getUserId());
+			pstmt.setString(1, userId);
 			
 			result = pstmt.executeUpdate();
 			
@@ -198,9 +227,38 @@ public class MemberDao {
 		} finally {
 			close(pstmt);
 		}
-		
-		
 		return result;
+	}
+	
+	public String loginMember(Connection conn, String userId, String userPwd) {
+		// select문(한 행) => ResultSet => Member 객체
+		
+		String userName = null;
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		
+		String sql = prop.getProperty("loginMember");
+		
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, userId);
+			pstmt.setString(2, userPwd);
+
+			rset = pstmt.executeQuery();
+			
+			if(rset.next()) {
+				userName = rset.getString("username");
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(rset);
+			close(pstmt);
+		}
+		
+		return userName;
+		
 	}
 	
 }

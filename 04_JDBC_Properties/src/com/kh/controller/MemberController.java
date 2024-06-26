@@ -1,5 +1,6 @@
 package com.kh.controller;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 
 import com.kh.model.dao.MemberDao;
@@ -110,19 +111,33 @@ public class MemberController {
 	 */
 	public void deleteMember(String userId) {
 		
+		Connection conn = null;
 		Member m = new Member();
 		m.getUserId();
 		
-		int result = new MemberService().deleteMember(userId, m);
+		int result = new MemberService().deleteMember(conn, userId);
 			
 		if (result > 0) {
 			new MemberMenu().displaySuccess("회원 정보를 성공적으로 삭제 했습니다.");
 		} else {
 			new MemberMenu().displayFail("삭제 실패 했습니다.");
 		}
+	}
+	
+	/**
+	 * 사용자의 로그인 요청 처리해주는 메소드
+	 * @param userId  	사용자가 입력한 아이디 값
+	 * @param userPwd 	사용자가 입력한 비밀번호 값
+	 */
+	public void loginMember(String userId, String userPwd) {
 		
+		String userName = new MemberService().loginMember(userId, userPwd);
 		
-		
+		if(userName == null) {
+			new MemberMenu().displayFail("로그인 실패! 아이디 또는 비밀번호를 잘못 입력 하셨습니다.");
+		} else {
+			new MemberMenu().displaySuccess("로그인 성공! " + userName + "님 환영합니다." );
+		}
 	}
 }
 	
